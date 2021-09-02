@@ -1,5 +1,12 @@
 # STAT-4800
-## Homework 1
+## Setup:
+- Download the data zip, and extract it. Place folder in the same directory as the 4800 STAT repository
+
+## Formatting
+- column_names.json can be formatted by pressing `SHIFT-ALT-F` in the file
+
+
+# Homework 1
 ## The Basics
 
 1. Get to know the data. Use the associated PDF to figure out what the variables are, what challenges there are in the way the variables were coded, what variables will be important for the current assignment, etc.
