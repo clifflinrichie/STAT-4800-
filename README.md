@@ -1,6 +1,8 @@
 # STAT-4800
 ## Setup:
-- Download the data zip, and extract it. Place folder in the same directory as the 4800 STAT repository
+- Download the data.zip, and extract it. Place folder in the same directory as the 4800 STAT repository
+- Run `python -m pip install pandas` which should download pandas and numpy packages
+- `python -m pip install seaborn`
 
 ## Formatting
 - column_names.json can be formatted by pressing `SHIFT-ALT-F` in the file
