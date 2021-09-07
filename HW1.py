@@ -43,6 +43,7 @@ with open("column_names_by_index.json", "w") as outfile:
 """
 #%%
 # Problem #2 DRIVEENDFIELDPOSITION variable
+# Only transformed variables that are based off MIDLINE 
 fb_2019["pff_DRIVEENDFIELDPOSITION"] = fb_2019["pff_DRIVEENDFIELDPOSITION"] + 50
 print(fb_2019["pff_DRIVEENDFIELDPOSITION"])
 
@@ -50,3 +51,7 @@ print(fb_2019["pff_DRIVEENDFIELDPOSITION"])
 # Problem #2 DRIVESTARTFIELDPOSITION variable
 fb_2019["pff_DRIVESTARTFIELDPOSITION"] = fb_2019["pff_DRIVESTARTFIELDPOSITION"] + 50
 print(fb_2019["pff_DRIVESTARTFIELDPOSITION"])
+#%%
+# Problem #2 FIELDPOSITION variable
+fb_2019["pff_FIELDPOSITION"] = fb_2019["pff_FIELDPOSITION"] + 50
+print(fb_2019["pff_FIELDPOSITION"])
