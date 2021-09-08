@@ -11,13 +11,13 @@ from seaborn import pairplot
 
 # data = r"C:\Users\andyc\Downloads\STAT 4800\2019 PFF All Plays.csv"
 data = r"C:\Users\joshj\Downloads\2019 PFF All Plays.csv"
-fb_2019 = pd.read_csv(data, index_col=0)
+# fb_2019 = pd.read_csv(data, index_col=0)
 """
 fb_2016 = pd.read_csv('2021 UVA Football Data-selected\\2016 PFF All Plays.csv', index_col=0)
 fb_2017 = pd.read_csv('2021 UVA Football Data-selected\\2017 PFF All Plays.csv', index_col=0)
 fb_2018 = pd.read_csv('2021 UVA Football Data-selected\\2018 PFF All Plays.csv', index_col=0)
 """
-# fb_2019 = pd.read_csv('2021 UVA Football Data-selected\\2019 PFF All Plays.csv', index_col=0)
+fb_2019 = pd.read_csv('2021 UVA Football Data-selected\\2019 PFF All Plays.csv', index_col=0)
 
 # columns with mixed data types
 # 4,81,85,86,94,95,101,112,143,154,155,163
@@ -109,6 +109,7 @@ fb_2019 = fb_2019[fb_2019.pff_QUARTER.isin([1,3])]
 
 ep_variables = ["pff_DISTANCE", "pff_FIELDPOSITION", "pff_OFFSCORE"]
 fb_2019_EP = fb_2019[ep_variables]
+fb_2019_EP_2 = fb_2019_EP
 
 LinReg = LinearRegression()
 ep_variables.remove("pff_OFFSCORE")
@@ -120,7 +121,9 @@ features.columns = ep_variables
 X_train, X_test, y_train, y_test = train_test_split(features,labels)
 LinReg.fit(X_train, y_train)
 
+print('Linear Regression coefficient')
 print(LinReg.coef_)
+print('features columns')
 print(features.columns)
 coefs = LinReg.coef_
 
@@ -134,5 +137,22 @@ def ExpectedPoints(coefs, values):
         return ep
 v = [3, 80]
 v = np.array(v)
+
+print('dataframe:')
+print(fb_2019_EP_2)
+test_df = pd.DataFrame([23], columns=['points'], index=[])
+print(test_df)
+df = pd.DataFrame([[]], columns=['points'], index=[])
+for index, row in fb_2019_EP_2.iterrows():
+    state = [row['pff_DISTANCE'], row['pff_FIELDPOSITION']]
+    state = np.array(state)
+    print(state)
+    points = ExpectedPoints(coefs, state)
+    df2 = pd.DataFrame([[points]], columns=['points'], index=[row])
+    df.append(df2)
+
+print('Function output: ')
+print(df)
+
 
 print(ExpectedPoints(coefs, v))
