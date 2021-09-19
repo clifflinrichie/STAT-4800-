@@ -106,7 +106,16 @@ for i in range(1,5):
             count = 0
             pc = 0      
             sum = 0
-        
+
+sum2 = []
+sum3 = []
+from statistics import mean
+for i in binned:
+    for j in binned:
+        sum2.append(i-j)
+    sum3.append(mean(sum2))
+    sum2 = []
+binned = sum3.copy()
 def ExpectedPoints(down, fieldposition):
     if down == 1:
         index = int(fieldposition/10)
