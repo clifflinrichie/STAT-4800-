@@ -19,9 +19,10 @@ stay with their current team. They can choose after each iteration.
 import pandas as pd
 import numpy as np
 import os
-
-os.chdir('/Users/joshjeon/Documents')
-data = pd.read_csv("SB_box_scores_2019_without_rank.csv", index_col=0)
+p = r"C:\Users\joshj\Downloads\SB_box_scores_2019_without_rank.csv"
+data = pd.read_csv(p, index_col=0)
+# os.chdir('/Users/joshjeon/Documents')
+# data = pd.read_csv("SB_box_scores_2019_without_rank.csv", index_col=0)
 
 ### finding all unique teams
 teams = pd.unique(pd.concat([data['Winner'],data['Loser']]))
@@ -109,12 +110,72 @@ The following section was a huge waste of time in an attempt to categorize by co
 # print(len(final_categories))
 
 total_team_occurances = pd.concat([data['Winner'],data['Loser']])
-print(total_team_occurances.value_counts())
-
+total_team_occurances = np.array(total_team_occurances)
+# create initial transition matrix
 teams = pd.DataFrame(teams)
-
+transition = np.zeros((teams.size,teams.size))
+count = 0
 for index, game in data.iterrows():
     winner = game["Winner"]
     loser = game["Loser"]
+    wp = game["Pts_winner"]
+    lp = game["Pts_loser"]
     wIndex = teams.loc[teams[0] == winner].index[0]
     lIndex = teams.loc[teams[0] == loser].index[0]
+    transition[lIndex][wIndex] = (wp/(wp+lp))
+    transition[wIndex][lIndex] = (lp/(lp+wp))
+
+# replace all unknown games with p = 0.5
+# for i in range(len(transition[0])):
+#     for j in range(len(transition[0])):
+#        if i != j:
+#            if transition[i][j] == 0:
+#                transition[i][j] = 0.5
+# corner = len(transition[0])-1
+# sum1 = 0
+# sum2 = 0
+# sum_col = 0
+# sum_row = 0
+# for i in range(len(transition[0])):
+#     corner = corner - i
+#     # sum_col = sum(transition[:,corner])-sum1
+#     # sum_row = transition.sum(axis=1)[corner]-sum2
+#     transition[i:corner,corner] = np.true_divide(transition[i:corner,corner], (1+sum1))
+#     transition[corner,i:corner] = np.true_divide(transition[corner,i:corner], (1+sum2))
+#     sum1 = 0
+#     sum2 = 0
+#     for i in range(corner-len(transition[0])-1):
+#         sum1 += transition[i,corner-1]
+#         sum2 += transition[corner-1,i]
+#     corner = len(transition[0])-1
+
+### make the matrix row-stochastic
+for i in range(len(transition[0])):
+    sum_row = transition[i].sum()
+    transition[i] /= sum_row
+
+### get proportions of games played
+gamesPlayed = []
+count = 0
+tempTeams = np.array(teams)
+for team in tempTeams:
+    for played in total_team_occurances:
+        if played == team:
+            count += 1
+    gamesPlayed.append(count)
+    count = 0
+gamesPlayed = np.array(gamesPlayed, dtype = np.float64)
+gamesPlayed /= data.shape[0]
+gamesPlayed = np.reshape(gamesPlayed,(217,1))
+
+### multiply transition matrix by proportions of games played
+for i in range(1):
+    gamesPlayed = transition.dot(gamesPlayed)
+gp = pd.DataFrame(gamesPlayed,columns = ["rank"])
+gp['index_col'] = range(217)
+gp = gp.sort_values(by='rank')
+gp2 = np.array(gp['index_col'])
+ranks = []
+for i in gp2:
+    ranks.append(tempTeams[i][0])
+print(ranks)
