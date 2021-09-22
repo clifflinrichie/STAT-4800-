@@ -1,17 +1,21 @@
 import pandas as pd
 import numpy as np
+import os
 import json
-from sklearn.linear_model import LinearRegression
-from sklearn.model_selection import train_test_split
-from sklearn import metrics
 # pairplot
 from seaborn import pairplot
 
 #### change the way you read in the data, i commented your ways of importing
 
 # data = r"C:\Users\andyc\Downloads\STAT 4800\2019 PFF All Plays.csv"
+<<<<<<< HEAD
 data = r"C:\Users\joshj\Downloads\2019 PFF All Plays.csv"
 # fb_2019 = pd.read_csv(data, index_col=0)
+=======
+#data = r"C:\Users\joshj\Downloads\2019 PFF All Plays.csv"
+os.chdir('/Users/joshjeon/Documents')
+fb_2019 = pd.read_csv("2019 PFF All Plays.csv", index_col=0)
+>>>>>>> 7db738ef3a9ecee0f4867df491d3496c10e8b2cc
 """
 fb_2016 = pd.read_csv('2021 UVA Football Data-selected\\2016 PFF All Plays.csv', index_col=0)
 fb_2017 = pd.read_csv('2021 UVA Football Data-selected\\2017 PFF All Plays.csv', index_col=0)
@@ -79,80 +83,56 @@ fb_2019 = fb_2019[fb_2019.pff_QUARTER.isin([1,3])]
 # #plot = pairplot(fb_2019_EP)
 # #plot.savefig('fig.png')
 
-# LinReg = LinearRegression()
-# ep_variables.remove("pff_SCORE")
-# labels = fb_2019["pff_SCORE"].copy()
-# labels = labels.replace(np.nan, 0)
-# features = fb_2019_EP.drop("pff_SCORE",axis=1)
-# features = features.replace(np.nan, 0)
-# features.columns = ep_variables
-# X_train, X_test, y_train, y_test = train_test_split(features,labels)
-# LinReg.fit(X_train, y_train)
+# We will create bins based off of downs, field position, and ytg
+# ex: 1st at 24, with 6 ytg
+# bin at each down, every 10 yards for field position (starting at 0), and every 2 yards for ytg (starting from 10)
+# 4 * 10 * 5 = 200 bins
+binned = []
+#position counter, reset after hitting 10
+pc = 0
+# yards counter, reset after hitting 2
+yc = 0
+# number of entries counter, reset after each bin
+count = 0
+# sum of points, reset after each bin
+sum = 0
+# avg points
+avg = 0
 
-# print(LinReg.coef_)
-# print(features.columns)
-# coefs = LinReg.coef_
+for i in range(1,5):
+    for j in range(101):
+        points = fb_2019.loc[(fb_2019["pff_DOWN"]==i)].loc[fb_2019["pff_FIELDPOSITION"]==j]
+        for score in points["pff_OFFSCORE"]:
+            sum += score
+            count += 1
+        pc+=1
+        if pc == 10:
+            binned.append(sum/count)
+            count = 0
+            pc = 0      
+            sum = 0
 
-# def ExpectedPoints(coefs, values):
-#     ep = 0
-#     if np.size(coefs) != np.size(values):
-#         return
-#     else:
-#         for i in range(np.size(coefs)):
-#            ep += (coefs[i] * values[i])
-#         return ep
-# v = [-10, 75, 30, 20, 20, -45, 1, 10, -23, 14]
-# v = np.array(v)
-# print(v)
+sum2 = []
+sum3 = []
+from statistics import mean
+for i in binned:
+    for j in binned:
+        sum2.append(i-j)
+    sum3.append(mean(sum2))
+    sum2 = []
+binned = sum3.copy()
+def ExpectedPoints(down, fieldposition):
+    if down == 1:
+        index = int(fieldposition/10)
+        return binned[index]
+    if down == 2:
+        index = int(fieldposition/10)+10
+        return binned[index]
+    if down == 3:
+        index = int(fieldposition/10)+20
+        return binned[index]
+    if down == 4:
+        index = int(fieldposition/10)+30
+        return binned[index] 
 
-# print(ExpectedPoints(coefs, v))
-
-ep_variables = ["pff_DISTANCE", "pff_FIELDPOSITION", "pff_OFFSCORE"]
-fb_2019_EP = fb_2019[ep_variables]
-fb_2019_EP_2 = fb_2019_EP
-
-LinReg = LinearRegression()
-ep_variables.remove("pff_OFFSCORE")
-labels = fb_2019["pff_OFFSCORE"].copy()
-labels = labels.replace(np.nan, 0)
-features = fb_2019_EP.drop("pff_OFFSCORE",axis=1)
-features = features.replace(np.nan, 0)
-features.columns = ep_variables
-X_train, X_test, y_train, y_test = train_test_split(features,labels)
-LinReg.fit(X_train, y_train)
-
-print('Linear Regression coefficient')
-print(LinReg.coef_)
-print('features columns')
-print(features.columns)
-coefs = LinReg.coef_
-
-def ExpectedPoints(coefs, values):
-    ep = 0
-    if np.size(coefs) != np.size(values):
-        return
-    else:
-        for i in range(np.size(coefs)):
-           ep += (coefs[i] * values[i])
-        return ep
-v = [3, 80]
-v = np.array(v)
-
-print('dataframe:')
-print(fb_2019_EP_2)
-test_df = pd.DataFrame([23], columns=['points'], index=[])
-print(test_df)
-df = pd.DataFrame([[]], columns=['points'], index=[])
-for index, row in fb_2019_EP_2.iterrows():
-    state = [row['pff_DISTANCE'], row['pff_FIELDPOSITION']]
-    state = np.array(state)
-    print(state)
-    points = ExpectedPoints(coefs, state)
-    df2 = pd.DataFrame([[points]], columns=['points'], index=[row])
-    df.append(df2)
-
-print('Function output: ')
-print(df)
-
-
-print(ExpectedPoints(coefs, v))
+print(ExpectedPoints(1,95))   
