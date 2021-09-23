@@ -20,7 +20,8 @@ import pandas as pd
 import numpy as np
 import os
 p = r"C:\Users\joshj\Downloads\SB_box_scores_2019_without_rank.csv"
-data = pd.read_csv(p, index_col=0)
+p1 = "2021 UVA Football Data-selected\\SB_box_scores_2019_without_rank.csv"
+data = pd.read_csv(p1, index_col=0)
 # os.chdir('/Users/joshjeon/Documents')
 # data = pd.read_csv("SB_box_scores_2019_without_rank.csv", index_col=0)
 
