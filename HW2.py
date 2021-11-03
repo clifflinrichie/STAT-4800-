@@ -26,6 +26,11 @@ data = pd.read_csv(p, index_col=0)
 
 ### finding all unique teams
 teams = pd.unique(pd.concat([data['Winner'],data['Loser']]))
+print(data["Winner"])
+for d in data["Winner"]:
+    print(d)
+for x in df["Date Time"]:
+    
 
 ### # of unique teams = 217
 # print(len(teams))
@@ -34,7 +39,7 @@ teams = pd.unique(pd.concat([data['Winner'],data['Loser']]))
 # print(data["Winner"].value_counts())
 
 """ 
-The following section was a huge waste of time in an attempt to categorize by conference (which didn't work)
+The following section was a huge waste of time in an attempt to categorize by conference (which didn't work) 
 """
 # # data = data.head(500)
 # # print(data)
