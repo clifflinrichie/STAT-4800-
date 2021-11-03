@@ -32,11 +32,23 @@ for value in filtered_data['Seconds_Elapsed']:
 filtered_data5['time'] = newcol2
 
 # Groupings
-period_groups = dict(filtered_data2['Period'].value_counts())
-strength_groups = dict(filtered_data2['Strength'].value_counts())
-time_groups = dict(filtered_data2['time'].value_counts())
-id_groups = dict(filtered_data2['Game_Id'].value_counts())
-team_groups = dict(filtered_data2['Ev_Team'].value_counts())
+# period_groups = dict(filtered_data2['Period'].value_counts())
+# strength_groups = dict(filtered_data2['Strength'].value_counts())
+# time_groups = dict(filtered_data2['time'].value_counts())
+# id_groups = dict(filtered_data2['Game_Id'].value_counts())
+# team_groups = dict(filtered_data2['Ev_Team'].value_counts())
+u_period = filtered_data5['Period'].unique()
+u_strength = ['5x5','5x4','4x5']
+u_time = filtered_data5['time'].unique()
+counts = []
+x = []
+for p in u_period:
+    for s in u_strength:
+        for t in u_time:
+            counts.append(len(filtered_data5[(filtered_data5['Period']==p)&(filtered_data5['Strength']==s)&(filtered_data5['time']==t)]))
+            x.append([p,s,t])
 
 # Model Building
-import sklearn as sk
+from sklearn.linear_model import PoissonRegressor
+pr = PoissonRegressor()
+
