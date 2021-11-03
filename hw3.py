@@ -71,3 +71,6 @@ print(pr.score(x_train,y_train))
 y_pred = pr.predict(x_test)
 print(pr.coef_)
 
+from sklearn.metrics import mean_squared_error
+print(np.sqrt(mean_squared_error(y_test,y_pred)))
+# we see here that we have a high rmse, we should look into ways to lower this
