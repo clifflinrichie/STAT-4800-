@@ -1,3 +1,6 @@
+# Andy Chuang, Josh Jeon, Cliff Lin
+# Homework 3
+
 import pandas as pd
 import numpy as np
 import os
@@ -74,3 +77,48 @@ print(pr.coef_)
 from sklearn.metrics import mean_squared_error
 print(np.sqrt(mean_squared_error(y_test,y_pred)))
 # we see here that we have a high rmse, we should look into ways to lower this
+
+# Groupings 2 minutes
+u_period2 = filtered_data2['Period'].unique()
+u_strength2 = ['5x5','5x4','4x5'] 
+u_strength12 = [1,2,3] # three levels: 5x5, 5x4, 4x5 repsectfully
+u_time2 = filtered_data2['time'].unique()
+counts2 = []
+x2 = []
+
+for p in u_period2:
+    for s in u_strength2:
+        for t in u_time2:
+            counts2.append(len(filtered_data2[(filtered_data2['Period']==p)&(filtered_data2['Strength']==s)&(filtered_data2['time']==t)]))
+for p in u_period2:
+    for s in u_strength12:
+        for t in u_time2:
+            x2.append([p,s,t])
+
+for i,v in enumerate(x2):
+    v.append(counts2[i])
+final_array2 = np.array(x2)
+final_df2 = pd.DataFrame(final_array2, columns = ['Period','Strength','Time Bin','Shot Rate'])
+
+# Model Building
+from sklearn.linear_model import PoissonRegressor
+from sklearn.model_selection import train_test_split
+train2, test2 = train_test_split(final_df2, test_size=0.2)
+y_train2 = np.array(train2['Shot Rate'].copy())
+train2.drop(columns='Shot Rate', axis=1, inplace=True)
+x_train2 = np.array(train2.copy())
+
+y_test2 = np.array(test2['Shot Rate'])
+test2.drop(columns='Shot Rate', axis=1, inplace=True)
+x_test2 = np.array(test2.copy())
+
+pr2 = PoissonRegressor()
+pr2.fit(x_train2,y_train2)
+print(pr2.score(x_train2,y_train2))
+y_pred2 = pr2.predict(x_test2)
+print(pr2.coef_)
+
+from sklearn.metrics import mean_squared_error
+print(np.sqrt(mean_squared_error(y_test2,y_pred2)))
+
+# mse was lowered to 177
