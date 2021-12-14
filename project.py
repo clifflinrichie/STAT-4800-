@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-import statsmodels.api as sm
+import statsmodels.api as sm    # python -m pip install statsmodels  
 from sklearn.linear_model import LinearRegression
 
 
