@@ -8,14 +8,9 @@ from seaborn import pairplot
 #### change the way you read in the data, i commented your ways of importing
 
 # data = r"C:\Users\andyc\Downloads\STAT 4800\2019 PFF All Plays.csv"
-<<<<<<< HEAD
-data = r"C:\Users\joshj\Downloads\2019 PFF All Plays.csv"
-# fb_2019 = pd.read_csv(data, index_col=0)
-=======
 #data = r"C:\Users\joshj\Downloads\2019 PFF All Plays.csv"
 os.chdir('/Users/joshjeon/Documents')
 fb_2019 = pd.read_csv("2019 PFF All Plays.csv", index_col=0)
->>>>>>> 7db738ef3a9ecee0f4867df491d3496c10e8b2cc
 """
 fb_2016 = pd.read_csv('2021 UVA Football Data-selected\\2016 PFF All Plays.csv', index_col=0)
 fb_2017 = pd.read_csv('2021 UVA Football Data-selected\\2017 PFF All Plays.csv', index_col=0)
