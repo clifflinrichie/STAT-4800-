@@ -1,21 +1,18 @@
-nextScore <- function(fieldLocation, down, YTG, possession) {
-  calcDistanceResult <- calculateDistance(fieldLocation)
-  changedDistance <- calcDistanceResult$distance
-  currPlay <- calcDistanceResult$play
+nScore <- function(fieldLoc, down, YTG, poss) {
+  calcDistRes <- calcDist(fieldLoc)
+  changedDistance <- calcDistRes$distance
+  currPlay <- calcDistRes$play
   newYTG <- YTG - changedDistance
-  newFieldLocation <- fieldLocation + changedDistance
+  newFieldLocation <- fieldLoc + changedDistance
   nextScoreVal <- 0
-  # if (down < 4) {
   if (down <=4) {
-    #check if you've reached the goal line; reset down if you have
     if (currPlay == 'fumble') {
-      possession <- changePossession(possession)
-      newFieldLocation <- 100 - fieldLocation
+      newFieldLocation <- 100 - fieldLoc
       down <- 1
       newYTG <- 10
     }
     else if (down == 4 & newYTG > 0) {
-      possession <- changePossession(possession)
+      poss <- changePossession(poss)
       newFieldLocation <- 100 - newFieldLocation
       down <- 1
       newYTG <- 10
@@ -30,44 +27,44 @@ nextScore <- function(fieldLocation, down, YTG, possession) {
   }
   else {
     #field goals and punts
-    fourthDownResults <- fourthDown(fieldLocation) #changeDistance, play
+    fourthDownResults <- fourthDown(fieldLoc) #changeDistance, play
     currPlay <-fourthDownResults$play
     if (currPlay == 'fg') {
-      nextScoreVal <- 3 * computePosNeg(possession)
+      nextScoreVal <- 3 * computePosNeg(poss)
       newFieldLocation <- 25
     }
     else if (currPlay == 'miss') {
-      newFieldLocation <- 100 - fieldLocation
+      newFieldLocation <- 100 - fieldLoc
     }
     else {
-      newFieldLocation <- fieldLocation + fourthDownResults$distance
+      newFieldLocation <- fieldLoc + fourthDownResults$distance
     }
     down <- 1
-    possession <- changePossession(possession)
+    poss <- changePossession(poss)
     newYTG <- 10
   }
   if (newFieldLocation >= 100) {
     if (currPlay != 'punt') {
       currPlay <- 'touchdown'
-      nextScoreVal <- 6 * computePosNeg(possession)
+      nextScoreVal <- 6 * computePosNeg(poss)
       extrapoint <- sample(c(1, 0), size=1, replace = TRUE, prob = c(0.7693, 0.2307))
       1
-      extrapoint <- extrapoint * computePosNeg(possession)
+      extrapoint <- extrapoint * computePosNeg(poss)
       nextScoreVal <- nextScoreVal + extrapoint
     }
-    possession <- changePossession(possession)
+    poss <- changePossession(poss)
     newFieldLocation <- 25
     down <- 1
   }
   if (newFieldLocation <=0) {
-    nextScoreVal <- -2 * computePosNeg(possession)
+    nextScoreVal <- -2 * computePosNeg(poss)
     down <- 1
-    possession <- changePossession(possession)
+    poss <- changePossession(poss)
     newFieldLocation <- 25
     currPlay <- 'safety'
   }
   returnVal <- list("nextScoreVal"=nextScoreVal, "newFieldLocation"=newFieldLocation,
-                    "down"=down, "newYTG"=newYTG, "possession"=possession,
+                    "down"=down, "newYTG"=newYTG, "poss"=poss,
                     "changedDistance"=changedDistance, "play"=currPlay)
   return (returnVal)
 }
@@ -87,7 +84,7 @@ computePosNeg <- function(team) {
     return (-1)
   }
 }
-calculateDistance <- function(fieldPosition) {
+calcDist <- function(fieldPosition) {
   #p(pass) = 0.5278036; p(run)=0.4721964
   rp_play <- sample(c('R', 'P'), size = 1, replace = TRUE, prob = c(0.4721964, 0.5278036))
   if(rp_play == 'P') {
@@ -218,24 +215,24 @@ runSimulation <- function(fp, down, ytg, team) {
   allDistances <- c(NA)
   allPlays <- c(NA)
   allDowns <- c(NA)
-  possession <- c(NA)
+  poss <- c(NA)
   fieldLocations <- c(NA)
   newVals <- nextScore(fp, down, ytg, team)
   while (score == 0) {
     newVals <- nextScore(newVals$newFieldLocation, newVals$down,
-                         newVals$newYTG, newVals$possession)
+                         newVals$newYTG, newVals$poss)
     score <- newVals$nextScoreVal
     iterator <- iterator + 1
     allDistances <- c(allDistances, newVals$changedDistance)
     allPlays <- c(allPlays, newVals$play)
     allDowns <- c(allDowns, newVals$down)
-    possession <- c(possession, newVals$possession)
+    poss <- c(poss, newVals$poss)
     fieldLocations <- c(fieldLocations, newVals$newFieldLocation)
     # print(newVals)
   }
   simulationInfo <- list("score"=score, "iterations"=iterator,
                          "changedDistances"=allDistances, "allPlays"=allPlays,
-                         "allDowns"=allDowns, "possession"=possession,
+                         "allDowns"=allDowns, "poss"=poss,
                          "fieldLocations"=fieldLocations)
   return (simulationInfo)
 }
@@ -246,7 +243,7 @@ runSimulation <- function(fp, down, ytg, team) {
 # simulationResults$changedDistances
 # simulationResults$allPlays
 # simulationResults$allDowns
-# simulationResults$possession
+# simulationResults$poss
 testSimulation <- function() {
   #field position range: 50-60
   #YTG range: 1-10
