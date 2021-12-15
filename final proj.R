@@ -1,38 +1,44 @@
-changePoss <- function(team) {
-  if (team == 'A') {
-    return ('B')
-  }
-  return ('A')
-}
 computePN <- function(team) {
   if (team == 'A') {
     return (1)
   }
   return (-1)
 }
-calcDist <- function(fieldPosition) {
-  rp_play <- sample(c('R', 'P'), size = 1, replace = TRUE, prob = c(0.4721964, 0.5278036))
-  if(rp_play == 'P') {
-    rp_play <- sample(c('dpc', 'dpic', 'ndpc', 'ndpic', 'fumble'), size=1, replace=TRUE,
+
+changePoss <- function(team) {
+  if (team == 'A') {
+    return ('B')
+  }
+  return ('A')
+}
+
+calcDist <- function(fieldPos) {
+  play <- sample(c('R', 'P'), size = 1, replace = TRUE, prob = c(0.472, 0.528))
+  
+  if(play == 'P') {
+    play <- sample(c('dpc', 'dpic', 'ndpc', 'ndpic', 'fumble'), size=1, replace=TRUE,
                       prob=c(0.045, 0.085, 0.46, 0.2, 0.014))
-    if (rp_play == 'dpic' | rp_play == 'ndpic' | rp_play == 'fumble') {
+    
+    if (play == 'dpic' | play == 'ndpic' | play == 'fumble') {
       distance <- 0
     }
     else {
-      distance <- calculateBin(fieldPosition, rp_play)
+      distance <- calculateBin(fieldPos, play)
     }
   }
-  else if (rp_play == 'R') {
-    run_play <- sample(c('success', 'fumble'), size = 1, replace = TRUE,
-                       prob = c(0.9818766, 0.01812342))
-    if (run_play == 'fumble') {
+  
+  else if (play == 'R') {
+    simulate_play <- sample(c('success', 'fumble'), size = 1, replace = TRUE,
+                       prob = c(0.982, 0.0181))
+    if (simulate_play == 'fumble') {
       distance <- 0
-      rp_play <- 'fumble'
+      play <- 'fumble'
     }
-    distance <- calculateBin(fieldPosition, rp_play)
+    distance <- calculateBin(fieldPosition, play)
   }
-  distPlay <- list("distance"=distance, "play"=rp_play)
-  return(distPlay)
+  
+  distance_of_play <- list("distance"=distance, "play"=play)
+  return(distance_of_play)
 }
 
 nScore <- function(fieldLoc, down, YTG, poss) {
@@ -84,7 +90,7 @@ nScore <- function(fieldLoc, down, YTG, poss) {
     if (currPlay != 'punt') {
       currPlay <- 'touchdown'
       nextScoreVal <- 6 * computePN(poss)
-      extrapoint <- sample(c(1, 0), size=1, replace = TRUE, prob = c(0.7693, 0.2307))
+      extrapoint <- sample(c(1, 0), size=1, replace = TRUE, prob = c(0.77, 0.23))
       1
       extrapoint <- extrapoint * computePN(poss)
       nextScoreVal <- nextScoreVal + extrapoint
@@ -109,69 +115,69 @@ calculateBin <- function(fieldPosition, play) {
   changeDistance <- 0
   if (fieldPosition <= 25) {
     if (play == 'R'){
-      shape <- 10.690340954
-      rate <- 0.456578081
+      shape <- 10.69
+      rate <- 0.457
       changeDistance <- rgamma(1, shape, rate)-16
     }
     if (play == 'dpc'){
-      shape <- 5.742605
-      rate <- 0.1409833
+      shape <- 5.74
+      rate <- 0.141
       changeDistance <- rgamma(1, shape, rate)
     }
     if (play == 'ndpc'){
-      shape <- 9.295788630
-      rate <- 0.353020303
+      shape <- 9.3
+      rate <- 0.353
       changeDistance <- rgamma(1, shape, rate)-16
     }
   }
   else if(fieldPosition > 25 & fieldPosition <= 50){
     if (play == 'R'){
-      shape <- 14.356134207
-      rate <- 0.521790696
+      shape <- 14.356
+      rate <- 0.522
       changeDistance <- rgamma(1, shape, rate)-22
     }
     if (play == 'dpc'){
-      shape <- 8.673703198
-      rate <- 0.222168271
+      shape <- 8.67
+      rate <- 0.22
       changeDistance <- rgamma(1, shape, rate)
     }
     if (play == 'ndpc'){
-      shape <- 7.671019924
-      rate <- 0.325964551
+      shape <- 7.67
+      rate <- 0.326
       changeDistance <- rgamma(1, shape, rate)-13
     }
   }
   else if(fieldPosition > 50 & fieldPosition <= 75){
     if (play == 'R'){
-      shape <- 13.151145571
-      rate <- 0.565530395
+      shape <- 13.151
+      rate <- 0.566
       changeDistance <- rgamma(1, shape, rate)-18
     }
     if (play == 'dpc'){
-      shape <- 20.86177422
-      rate <- 0.65467692
+      shape <- 20.862
+      rate <- 0.655
       changeDistance <- rgamma(1, shape, rate)
     }
     if (play == 'ndpc'){
-      shape <- 10.984156182
-      rate <- 0.413641568
+      shape <- 10.984
+      rate <- 0.413
       changeDistance <- rgamma(1, shape, rate)-16
     }
   }
   else{
     if (play == 'R'){
-      shape <- 29.71484179
-      rate <- 1.27534603
+      shape <- 29.71
+      rate <- 1.27
       changeDistance <- rgamma(1, shape, rate)-20
     }
     if (play == 'dpc'){
-      shape <- 7.1307362
-      rate <- 20.8490961
+      shape <- 7.13
+      rate <- 20.85
       changeDistance <- rweibull(1, shape, rate)
     }
     if (play == 'ndpc'){
-      shape <- 13.29157668
-      rate <- 0.64467872
+      shape <- 13.292
+      rate <- 0.645
       changeDistance <- rgamma(1, shape, rate)-16
     }
   }
@@ -190,16 +196,16 @@ fourthDown <- function(fieldPosition) {
       play <- 'fg'
     }
     else if (100 - fieldPosition > 10 & 100 - fieldPosition <= 20) {
-      play <- sample(c('fg', 'miss'), size = 1, replace = TRUE, prob = c(0.8961, 0.1039))
+      play <- sample(c('fg', 'miss'), size = 1, replace = TRUE, prob = c(0.896, 0.103))
     }
     else if (100 - fieldPosition > 20 & 100 - fieldPosition <= 30) {
-      play <- sample(c('fg', 'miss'), size = 1, replace = TRUE, prob = c(0.8193, 0.1807))
+      play <- sample(c('fg', 'miss'), size = 1, replace = TRUE, prob = c(0.8193, 0.18))
     }
     else if (100 - fieldPosition > 30 & 100 - fieldPosition <= 40) {
-      play <- sample(c('fg', 'miss'), size = 1, replace = TRUE, prob = c(0.7485, 0.2515))
+      play <- sample(c('fg', 'miss'), size = 1, replace = TRUE, prob = c(0.75, 0.25))
     }
     else {
-      play <- sample(c('fg', 'miss'), size = 1, replace = TRUE, prob = c(0.6667, 0.3333))
+      play <- sample(c('fg', 'miss'), size = 1, replace = TRUE, prob = c(0.667, 0.33))
     }
   }
   fourthDownResult <- list("distance"=changeDistance, "play"=play)
