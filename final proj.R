@@ -1,88 +1,14 @@
-nScore <- function(fieldLoc, down, YTG, poss) {
-  calcDistRes <- calcDist(fieldLoc)
-  changedDistance <- calcDistRes$distance
-  currPlay <- calcDistRes$play
-  newYTG <- YTG - changedDistance
-  newFieldLocation <- fieldLoc + changedDistance
-  nextScoreVal <- 0
-  if (down <=4) {
-    if (currPlay == 'fumble') {
-      newFieldLocation <- 100 - fieldLoc
-      down <- 1
-      newYTG <- 10
-    }
-    else if (down == 4 & newYTG > 0) {
-      poss <- changePossession(poss)
-      newFieldLocation <- 100 - newFieldLocation
-      down <- 1
-      newYTG <- 10
-    }
-    if (newYTG <= 0 | newFieldLocation >= 100 | currPlay == 'fumble') {
-      down <- 1
-      newYTG <- 10
-    }
-    else {
-      down <- down + 1
-    }
-  }
-  else {
-    #field goals and punts
-    fourthDownResults <- fourthDown(fieldLoc) #changeDistance, play
-    currPlay <-fourthDownResults$play
-    if (currPlay == 'fg') {
-      nextScoreVal <- 3 * computePosNeg(poss)
-      newFieldLocation <- 25
-    }
-    else if (currPlay == 'miss') {
-      newFieldLocation <- 100 - fieldLoc
-    }
-    else {
-      newFieldLocation <- fieldLoc + fourthDownResults$distance
-    }
-    down <- 1
-    poss <- changePossession(poss)
-    newYTG <- 10
-  }
-  if (newFieldLocation >= 100) {
-    if (currPlay != 'punt') {
-      currPlay <- 'touchdown'
-      nextScoreVal <- 6 * computePosNeg(poss)
-      extrapoint <- sample(c(1, 0), size=1, replace = TRUE, prob = c(0.7693, 0.2307))
-      1
-      extrapoint <- extrapoint * computePosNeg(poss)
-      nextScoreVal <- nextScoreVal + extrapoint
-    }
-    poss <- changePossession(poss)
-    newFieldLocation <- 25
-    down <- 1
-  }
-  if (newFieldLocation <=0) {
-    nextScoreVal <- -2 * computePosNeg(poss)
-    down <- 1
-    poss <- changePossession(poss)
-    newFieldLocation <- 25
-    currPlay <- 'safety'
-  }
-  returnVal <- list("nextScoreVal"=nextScoreVal, "newFieldLocation"=newFieldLocation,
-                    "down"=down, "newYTG"=newYTG, "poss"=poss,
-                    "changedDistance"=changedDistance, "play"=currPlay)
-  return (returnVal)
-}
-changePossession <- function(team) {
+changePoss <- function(team) {
   if (team == 'A') {
     return ('B')
   }
-  else {
-    return ('A')
-  }
+  return ('A')
 }
-computePosNeg <- function(team) {
+computePN <- function(team) {
   if (team == 'A') {
     return (1)
   }
-  else {
-    return (-1)
-  }
+  return (-1)
 }
 calcDist <- function(fieldPosition) {
   #p(pass) = 0.5278036; p(run)=0.4721964
@@ -108,6 +34,77 @@ calcDist <- function(fieldPosition) {
   }
   distPlay <- list("distance"=distance, "play"=rp_play)
   return(distPlay)
+}
+
+nScore <- function(fieldLoc, down, YTG, poss) {
+  calcDistRes <- calcDist(fieldLoc)
+  changedDistance <- calcDistRes$distance
+  currPlay <- calcDistRes$play
+  newYTG <- YTG - changedDistance
+  newFieldLocation <- fieldLoc + changedDistance
+  nextScoreVal <- 0
+  if (down <=4) {
+    if (currPlay == 'fumble') {
+      newFieldLocation <- 100 - fieldLoc
+      down <- 1
+      newYTG <- 10
+    }
+    else if (down == 4 & newYTG > 0) {
+      poss <- changePoss(poss)
+      newFieldLocation <- 100 - newFieldLocation
+      down <- 1
+      newYTG <- 10
+    }
+    if (newYTG <= 0 | newFieldLocation >= 100 | currPlay == 'fumble') {
+      down <- 1
+      newYTG <- 10
+    }
+    else {
+      down <- down + 1
+    }
+  }
+  else {
+    #field goals and punts
+    fourthDownResults <- fourthDown(fieldLoc) #changeDistance, play
+    currPlay <-fourthDownResults$play
+    if (currPlay == 'fg') {
+      nextScoreVal <- 3 * computePN(poss)
+      newFieldLocation <- 25
+    }
+    else if (currPlay == 'miss') {
+      newFieldLocation <- 100 - fieldLoc
+    }
+    else {
+      newFieldLocation <- fieldLoc + fourthDownResults$distance
+    }
+    down <- 1
+    poss <- changePoss(poss)
+    newYTG <- 10
+  }
+  if (newFieldLocation >= 100) {
+    if (currPlay != 'punt') {
+      currPlay <- 'touchdown'
+      nextScoreVal <- 6 * computePN(poss)
+      extrapoint <- sample(c(1, 0), size=1, replace = TRUE, prob = c(0.7693, 0.2307))
+      1
+      extrapoint <- extrapoint * computePN(poss)
+      nextScoreVal <- nextScoreVal + extrapoint
+    }
+    poss <- changePoss(poss)
+    newFieldLocation <- 25
+    down <- 1
+  }
+  if (newFieldLocation <=0) {
+    nextScoreVal <- -2 * computePN(poss)
+    down <- 1
+    poss <- changePoss(poss)
+    newFieldLocation <- 25
+    currPlay <- 'safety'
+  }
+  returnVal <- list("nextScoreVal"=nextScoreVal, "newFieldLocation"=newFieldLocation,
+                    "down"=down, "newYTG"=newYTG, "poss"=poss,
+                    "changedDistance"=changedDistance, "play"=currPlay)
+  return (returnVal)
 }
 calculateBin <- function(fieldPosition, play) {
   changeDistance <- 0
@@ -236,14 +233,6 @@ runSimulation <- function(fp, down, ytg, team) {
                          "fieldLocations"=fieldLocations)
   return (simulationInfo)
 }
-# testing simulation ----
-# simulationResults <- runSimulation(25, 1, 10, 'A')
-# simulationResults$score
-# simulationResults$iterations
-# simulationResults$changedDistances
-# simulationResults$allPlays
-# simulationResults$allDowns
-# simulationResults$poss
 testSimulation <- function() {
   #field position range: 50-60
   #YTG range: 1-10
