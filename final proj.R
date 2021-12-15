@@ -11,11 +11,10 @@ computePN <- function(team) {
   return (-1)
 }
 calcDist <- function(fieldPosition) {
-  #p(pass) = 0.5278036; p(run)=0.4721964
   rp_play <- sample(c('R', 'P'), size = 1, replace = TRUE, prob = c(0.4721964, 0.5278036))
   if(rp_play == 'P') {
     rp_play <- sample(c('dpc', 'dpic', 'ndpc', 'ndpic', 'fumble'), size=1, replace=TRUE,
-                      prob=c(0.04527526, 0.08498619, 0.4619231, 0.200062, 0.01543923))
+                      prob=c(0.045, 0.085, 0.46, 0.2, 0.014))
     if (rp_play == 'dpic' | rp_play == 'ndpic' | rp_play == 'fumble') {
       distance <- 0
     }
@@ -249,3 +248,6 @@ testSimulation <- function() {
 simulationScores <- testSimulation()
 simulationScores <- simulationScores[!is.na(simulationScores)]
 table(simulationScores)
+simScores <- as.numeric(table(simulationScores))
+expectedPoints <- (simScores[1]/1000 *-7 + simScores[2]/1000 * -6 + simScores[3]/1000*-2 + simScores[4]/1000*2 + simScores[5]/1000*6 + simScores[6]/1000 * 7)
+expectedPoints
