@@ -23,10 +23,10 @@ calcDist <- function(fieldPos) {
 
 nScore <- function(fieldLoc, down, YTG, poss) {
   calcDistRes <- calcDist(fieldLoc)
-  changedDistance <- calcDistRes$distance
+  changeDist <- calcDistRes$distance
   currPlay <- calcDistRes$play
-  newYTG <- YTG - changedDistance
-  nFL <- fieldLoc + changedDistance
+  newYTG <- YTG - changeDist
+  nFL <- fieldLoc + changeDist
   nSV <- 0
   if (down <=4) {
     if (currPlay == 'fumble') {
@@ -86,7 +86,7 @@ nScore <- function(fieldLoc, down, YTG, poss) {
   }
   returnVal <- list("nSV"=nSV, "nFL"=nFL,
                     "down"=down, "newYTG"=newYTG, "poss"=poss,
-                    "changedDistance"=changedDistance, "play"=currPlay)
+                    "changeDist"=changeDist, "play"=currPlay)
   return (returnVal)
 }
 bin <- function(fieldPos, play) {
@@ -142,7 +142,7 @@ bin <- function(fieldPos, play) {
   return(changeDist)
 }
 fDown <- function(fieldPos) {
-  changedDistance <- 0
+  changeDist <- 0
   play <- ' '
   if (100 - fieldPos > 50) {
     changeDist <- rlogis(1, 39.6, 4.99)
@@ -184,30 +184,30 @@ changePoss <- function(team) {
   return ('A')
 }
 sim <- function(fp, down, ytg, team) {
-  allDowns <- c(NA)
-  iterator <- 0
-  allDists <- c(NA)
+  d <- c(NA)
+  its <- 0
+  di <- c(NA)
   score <- 0
-  allPlays <- c(NA)
+  p <- c(NA)
   poss <- c(NA)
-  fieldLocations <- c(NA)
-  newVals <- nScore(fp, down, ytg, team)
+  fieldLoc <- c(NA)
+  nV <- nScore(fp, down, ytg, team)
   while (score == 0) {
-    newVals <- nScore(newVals$nFL, newVals$down,
-                         newVals$newYTG, newVals$poss)
-    score <- newVals$nSV
-    iterator <- iterator + 1
-    allDists <- c(allDists, newVals$changedDistance)
-    allPlays <- c(allPlays, newVals$play)
-    allDowns <- c(allDowns, newVals$down)
-    poss <- c(poss, newVals$poss)
-    fieldLocations <- c(fieldLocations, newVals$nFL)
+    nV <- nScore(nV$nFL, nV$down,
+                         nV$newYTG, nV$poss)
+    score <- nV$nSV
+    its <- its + 1
+    di <- c(di, nV$changeDist)
+    p <- c(p, nV$play)
+    d <- c(d, nV$down)
+    poss <- c(poss, nV$poss)
+    fieldLoc <- c(fieldLoc, nV$nFL)
   }
-  simulationInfo <- list("score"=score, "iterations"=iterator,
-                         "changedDistances"=allDists, "allPlays"=allPlays,
-                         "allDowns"=allDowns, "poss"=poss,
-                         "fieldLocations"=fieldLocations)
-  return (simulationInfo)
+  simfo <- list("score"=score, "iterations"=its,
+                         "changedDistances"=di, "p"=p,
+                         "d"=d, "poss"=poss,
+                         "fieldLoc"=fieldLoc)
+  return (simfo)
 }
 testSim <- function() {
   allScores <- c(NA)
