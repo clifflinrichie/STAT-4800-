@@ -27,7 +27,7 @@ calcDist <- function(fieldPos) {
       distance <- 0
       play <- 'fumble'
     }
-    distance <- calculateBin(fieldPosition, play)
+    distance <- calculateBin(fieldPos, play)
   }
   
   distance_of_play <- list("distance"=distance, "play"=play)
@@ -102,9 +102,9 @@ nScore <- function(fieldLoc, down, YTG, poss) {
                     "changedDistance"=changedDistance, "play"=currPlay)
   return (returnVal)
 }
-calculateBin <- function(fieldPosition, play) {
+calculateBin <- function(fieldPos, play) {
   changeDistance <- 0
-  if (fieldPosition <= 25) {
+  if (fieldPos <= 25) {
     if (play == 'R'){
       shape <- 10.69
       rate <- 0.457
@@ -116,7 +116,7 @@ calculateBin <- function(fieldPosition, play) {
       changeDistance <- rgamma(1, shape, rate) - 15
     }
   }
-  else if(fieldPosition > 25 & fieldPosition <= 50){
+  else if(fieldPos > 25 & fieldPos <= 50){
     if (play == 'R'){
       shape <- 14.356
       rate <- 0.522
@@ -128,7 +128,7 @@ calculateBin <- function(fieldPosition, play) {
       changeDistance <- rgamma(1, shape, rate) - 12
     }
   }
-  else if(fieldPosition > 50 & fieldPosition <= 75){
+  else if(fieldPos > 50 & fieldPos <= 75){
     if (play == 'R'){
       shape <- 13.151
       rate <- 0.566
@@ -137,7 +137,7 @@ calculateBin <- function(fieldPosition, play) {
     if (play == 'complete'){
       shape <- 11.853
       rate <- 0.434
-      changeDistance <- rgamma(1, shape, rate) -15
+      changeDistance <- rgamma(1, shape, rate)
     }
   }
   else{
@@ -149,30 +149,30 @@ calculateBin <- function(fieldPosition, play) {
     if (play == 'complete'){
       shape <- 12.750
       rate <- 2.423
-      changeDistance <- rgamma(1, shape, rate) -15
+      changeDistance <- rgamma(1, shape, rate)
     }
   }
   return(changeDistance)
 }
-fourthDown <- function(fieldPosition) {
+fourthDown <- function(fieldPos) {
   changedDistance <- 0
   play <- ' '
-  if (100 - fieldPosition > 50) {
+  if (100 - fieldPos > 50) {
     changeDistance <- rlogis(1, 39.6, 4.99)
     play <- 'punt'
   }
   else {
     changeDistance <- 0
-    if (100 - fieldPosition <=10) {
+    if (100 - fieldPos <=10) {
       play <- 'fg'
     }
-    else if (100 - fieldPosition > 10 & 100 - fieldPosition <= 20) {
+    else if (100 - fieldPos > 10 & 100 - fieldPos <= 20) {
       play <- sample(c('fg', 'miss'), size = 1, replace = TRUE, prob = c(0.897, 0.103))
     }
-    else if (100 - fieldPosition > 20 & 100 - fieldPosition <= 30) {
+    else if (100 - fieldPos > 20 & 100 - fieldPos <= 30) {
       play <- sample(c('fg', 'miss'), size = 1, replace = TRUE, prob = c(0.82, 0.18))
     }
-    else if (100 - fieldPosition > 30 & 100 - fieldPosition <= 40) {
+    else if (100 - fieldPos > 30 & 100 - fieldPos <= 40) {
       play <- sample(c('fg', 'miss'), size = 1, replace = TRUE, prob = c(0.75, 0.25))
     }
     else {
@@ -190,9 +190,9 @@ runSimulation <- function(fp, down, ytg, team) {
   allDowns <- c(NA)
   poss <- c(NA)
   fieldLocations <- c(NA)
-  newVals <- nextScore(fp, down, ytg, team)
+  newVals <- nScore(fp, down, ytg, team)
   while (score == 0) {
-    newVals <- nextScore(newVals$newFieldLocation, newVals$down,
+    newVals <- nScore(newVals$newFieldLocation, newVals$down,
                          newVals$newYTG, newVals$poss)
     score <- newVals$nextScoreVal
     iterator <- iterator + 1
