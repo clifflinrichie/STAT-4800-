@@ -11,25 +11,18 @@ changePoss <- function(team) {
   }
   return ('A')
 }
-
 calcDist <- function(fieldPos) {
   play <- sample(c('R', 'P'), size = 1, replace = TRUE, prob = c(0.472, 0.528))
   
   if(play == 'P') {
-    play <- sample(c('dpc', 'dpic', 'ndpc', 'ndpic', 'fumble'), size=1, replace=TRUE,
-                      prob=c(0.045, 0.085, 0.46, 0.2, 0.014))
-    
-    if (play == 'dpic' | play == 'ndpic' | play == 'fumble') {
-      distance <- 0
-    }
-    else {
-      distance <- calculateBin(fieldPos, play)
-    }
+    play <- sample(c('complete', 'incomplete'), size=1, replace=TRUE,
+                      prob=c(0.507, 0.285))
+    distance <- calculateBin(fieldPos, play)
   }
   
   else if (play == 'R') {
     simulate_play <- sample(c('success', 'fumble'), size = 1, replace = TRUE,
-                       prob = c(0.982, 0.0181))
+                       prob = c(0.982, 0.018))
     if (simulate_play == 'fumble') {
       distance <- 0
       play <- 'fumble'
@@ -69,8 +62,7 @@ nScore <- function(fieldLoc, down, YTG, poss) {
     }
   }
   else {
-    #field goals and punts
-    fourthDownResults <- fourthDown(fieldLoc) #changeDistance, play
+    fourthDownResults <- fourthDown(fieldLoc)
     currPlay <-fourthDownResults$play
     if (currPlay == 'fg') {
       nextScoreVal <- 3 * computePN(poss)
@@ -91,7 +83,6 @@ nScore <- function(fieldLoc, down, YTG, poss) {
       currPlay <- 'touchdown'
       nextScoreVal <- 6 * computePN(poss)
       extrapoint <- sample(c(1, 0), size=1, replace = TRUE, prob = c(0.77, 0.23))
-      1
       extrapoint <- extrapoint * computePN(poss)
       nextScoreVal <- nextScoreVal + extrapoint
     }
@@ -119,15 +110,10 @@ calculateBin <- function(fieldPosition, play) {
       rate <- 0.457
       changeDistance <- rgamma(1, shape, rate)-16
     }
-    if (play == 'dpc'){
-      shape <- 5.74
-      rate <- 0.141
-      changeDistance <- rgamma(1, shape, rate)
-    }
-    if (play == 'ndpc'){
-      shape <- 9.3
-      rate <- 0.353
-      changeDistance <- rgamma(1, shape, rate)-16
+    if (play == 'complete'){
+      shape <- 8.99
+      rate <- 0.334
+      changeDistance <- rgamma(1, shape, rate) - 15
     }
   }
   else if(fieldPosition > 25 & fieldPosition <= 50){
@@ -136,15 +122,10 @@ calculateBin <- function(fieldPosition, play) {
       rate <- 0.522
       changeDistance <- rgamma(1, shape, rate)-22
     }
-    if (play == 'dpc'){
-      shape <- 8.67
-      rate <- 0.22
-      changeDistance <- rgamma(1, shape, rate)
-    }
-    if (play == 'ndpc'){
-      shape <- 7.67
-      rate <- 0.326
-      changeDistance <- rgamma(1, shape, rate)-13
+    if (play == 'complete'){
+      shape <- 7.758
+      rate <- 0.317
+      changeDistance <- rgamma(1, shape, rate) - 12
     }
   }
   else if(fieldPosition > 50 & fieldPosition <= 75){
@@ -153,15 +134,10 @@ calculateBin <- function(fieldPosition, play) {
       rate <- 0.566
       changeDistance <- rgamma(1, shape, rate)-18
     }
-    if (play == 'dpc'){
-      shape <- 20.862
-      rate <- 0.655
-      changeDistance <- rgamma(1, shape, rate)
-    }
-    if (play == 'ndpc'){
-      shape <- 10.984
-      rate <- 0.413
-      changeDistance <- rgamma(1, shape, rate)-16
+    if (play == 'complete'){
+      shape <- 11.853
+      rate <- 0.434
+      changeDistance <- rgamma(1, shape, rate) -15
     }
   }
   else{
@@ -170,15 +146,10 @@ calculateBin <- function(fieldPosition, play) {
       rate <- 1.27
       changeDistance <- rgamma(1, shape, rate)-20
     }
-    if (play == 'dpc'){
-      shape <- 7.13
-      rate <- 20.85
-      changeDistance <- rweibull(1, shape, rate)
-    }
-    if (play == 'ndpc'){
-      shape <- 13.292
-      rate <- 0.645
-      changeDistance <- rgamma(1, shape, rate)-16
+    if (play == 'complete'){
+      shape <- 12.750
+      rate <- 2.423
+      changeDistance <- rgamma(1, shape, rate) -15
     }
   }
   return(changeDistance)
@@ -196,10 +167,10 @@ fourthDown <- function(fieldPosition) {
       play <- 'fg'
     }
     else if (100 - fieldPosition > 10 & 100 - fieldPosition <= 20) {
-      play <- sample(c('fg', 'miss'), size = 1, replace = TRUE, prob = c(0.896, 0.103))
+      play <- sample(c('fg', 'miss'), size = 1, replace = TRUE, prob = c(0.897, 0.103))
     }
     else if (100 - fieldPosition > 20 & 100 - fieldPosition <= 30) {
-      play <- sample(c('fg', 'miss'), size = 1, replace = TRUE, prob = c(0.8193, 0.18))
+      play <- sample(c('fg', 'miss'), size = 1, replace = TRUE, prob = c(0.82, 0.18))
     }
     else if (100 - fieldPosition > 30 & 100 - fieldPosition <= 40) {
       play <- sample(c('fg', 'miss'), size = 1, replace = TRUE, prob = c(0.75, 0.25))
@@ -230,7 +201,6 @@ runSimulation <- function(fp, down, ytg, team) {
     allDowns <- c(allDowns, newVals$down)
     poss <- c(poss, newVals$poss)
     fieldLocations <- c(fieldLocations, newVals$newFieldLocation)
-    # print(newVals)
   }
   simulationInfo <- list("score"=score, "iterations"=iterator,
                          "changedDistances"=allDistances, "allPlays"=allPlays,
@@ -239,10 +209,8 @@ runSimulation <- function(fp, down, ytg, team) {
   return (simulationInfo)
 }
 testSimulation <- function() {
-  #field position range: 50-60
-  #YTG range: 1-10
   allScores <- c(NA)
-  for (i in 1:10) {
+  for (i in 1:12) {
     for (fp in 80:90){
       for (ytg in 1:10) {
         allScores <- c(allScores, runSimulation(fp, 4, ytg, 'A')$score)
